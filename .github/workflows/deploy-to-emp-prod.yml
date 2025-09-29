@@ -1,0 +1,52 @@
+name: Deploy Managed solution to Emp-Prod
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ "main" ]
+    paths:
+      - "solutions/**"
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    env:
+      SOLUTION_NAME: ${{ secrets.PP_SOLUTION_NAME }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Pack solution (Managed) from repo
+        uses: microsoft/powerplatform-actions/pack-solution@v1
+        with:
+          folder: solutions/${{ env.SOLUTION_NAME }}
+          solution-file: out/${{ env.SOLUTION_NAME }}_Managed.zip
+          package-type: Managed
+          process-canvas-apps: true
+
+      - name: WhoAmI (Prod)
+        uses: microsoft/powerplatform-actions/who-am-i@v1
+        with:
+          environment-url: ${{ secrets.PP_PROD_URL }}
+          tenant-id: ${{ secrets.PP_TENANT_ID }}
+          app-id: ${{ secrets.PP_CLIENT_ID }}
+          client-secret: ${{ secrets.PP_CLIENT_SECRET }}
+
+      - name: Import Managed solution to Emp-Prod
+        uses: microsoft/powerplatform-actions/import-solution@v1
+        with:
+          environment-url: ${{ secrets.PP_PROD_URL }}
+          tenant-id: ${{ secrets.PP_TENANT_ID }}
+          app-id: ${{ secrets.PP_CLIENT_ID }}
+          client-secret: ${{ secrets.PP_CLIENT_SECRET }}
+          solution-file: out/${{ env.SOLUTION_NAME }}_Managed.zip
+          publish-changes: true
+          overwrite-unmanaged-customizations: true
+
+      - name: Publish customizations
+        uses: microsoft/powerplatform-actions/publish-customizations@v1
+        with:
+          environment-url: ${{ secrets.PP_PROD_URL }}
+          tenant-id: ${{ secrets.PP_TENANT_ID }}
+          app-id: ${{ secrets.PP_CLIENT_ID }}
+          client-secret: ${{ secrets.PP_CLIENT_SECRET }}
