@@ -23,9 +23,8 @@ jobs:
         uses: microsoft/powerplatform-actions/who-am-i@v1
         with:
           environment-url: ${{ secrets.PP_DEV_URL }}
-          tenant-id: ${{ secrets.PP_TENANT_ID }}
-          app-id: ${{ secrets.PP_CLIENT_ID }}
-          client-secret: ${{ secrets.PP_CLIENT_SECRET }}
+          username: ${{ secrets.PP_USERNAME }}
+          password: ${{ secrets.PP_PASSWORD }}
 
       - name: Export solution (Unmanaged) from Dev
         uses: microsoft/powerplatform-actions/export-solution@v1
