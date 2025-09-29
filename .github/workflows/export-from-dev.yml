@@ -30,9 +30,8 @@ jobs:
         uses: microsoft/powerplatform-actions/export-solution@v1
         with:
           environment-url: ${{ secrets.PP_DEV_URL }}
-          tenant-id: ${{ secrets.PP_TENANT_ID }}
-          app-id: ${{ secrets.PP_CLIENT_ID }}
-          client-secret: ${{ secrets.PP_CLIENT_SECRET }}
+          user-name: ${{ secrets.PP_USERNAME }}
+          password-secret: ${{ secrets.PP_PASSWORD }}
           solution-name: ${{ env.SOLUTION_NAME }}
           managed: false
           output-file: out/${{ env.SOLUTION_NAME }}_Unmanaged.zip
