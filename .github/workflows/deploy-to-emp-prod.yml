@@ -1,4 +1,4 @@
-name: Deploy Managed solution to Emp-Prod
+name: Deploy Managed solution to Yash Env Prod
 
 on:
   workflow_dispatch:
@@ -32,7 +32,7 @@ jobs:
           app-id: ${{ secrets.PP_CLIENT_ID }}
           client-secret: ${{ secrets.PP_CLIENT_SECRET }}
 
-      - name: Import Managed solution to Emp-Prod
+      - name: Import Managed solution to Yash Env Prod
         uses: microsoft/powerplatform-actions/import-solution@v1
         with:
           environment-url: ${{ secrets.PP_PROD_URL }}
