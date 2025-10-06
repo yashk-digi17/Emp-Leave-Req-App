@@ -1,68 +1,27 @@
-name: Dev to Prod Unmanaged Deployment
+name: Deploy Unmanaged Solution to Prod
 
 permissions:
-  contents: write
+  contents: read
 
 on:
   workflow_dispatch:
-  push:
-    branches: [ "main" ]
-    paths:
-      - ".github/workflows/**"
-      - "solutions/**"
+  workflow_run:
+    workflows: ["Export Unmanaged Solution from Dev"]
+    types:
+      - completed
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
     env:
-      SOLUTION_NAME: emp_leave   # 👈 define solution name manually
+      SOLUTION_NAME: emp_leave
     steps:
-      # 1. Checkout repo
-      - name: Checkout
+      - name: Checkout repo
         uses: actions/checkout@v4
 
-      # 2. Install Power Platform CLI
       - name: Install PAC CLI
         uses: microsoft/powerplatform-actions/actions-install@v1
 
-      # 3. WhoAmI (Dev)
-      - name: WhoAmI (Dev)
-        uses: microsoft/powerplatform-actions/who-am-i@v1
-        with:
-          environment-url: ${{ secrets.PP_DEV_URL }}
-          tenant-id: ${{ secrets.PP_DEV_TENANT_ID }}
-          app-id: ${{ secrets.PP_DEV_CLIENT_ID }}
-          client-secret: ${{ secrets.PP_DEV_CLIENT_SECRET }}
-
-      # 4. Export Unmanaged Solution from Dev
-      - name: Export solution (Unmanaged) from Dev
-        uses: microsoft/powerplatform-actions/export-solution@v1
-        with:
-          environment-url: ${{ secrets.PP_DEV_URL }}
-          tenant-id: ${{ secrets.PP_DEV_TENANT_ID }}
-          app-id: ${{ secrets.PP_DEV_CLIENT_ID }}
-          client-secret: ${{ secrets.PP_DEV_CLIENT_SECRET }}
-          solution-name: ${{ env.SOLUTION_NAME }}
-          managed: false
-          overwrite: true
-          solution-output-file: out/${{ env.SOLUTION_NAME }}_Unmanaged.zip
-
-      # 5. Unpack solution into repo folder (optional)
-      - name: Unpack solution to /solutions/${{ env.SOLUTION_NAME }}
-        uses: microsoft/powerplatform-actions/unpack-solution@v1
-        with:
-          solution-file: out/${{ env.SOLUTION_NAME }}_Unmanaged.zip
-          solution-folder: solutions/${{ env.SOLUTION_NAME }}
-          process-canvas-apps: true
-
-      # 6. Commit unpacked files to Git (optional)
-      - name: Commit unpacked files
-        uses: stefanzweifel/git-auto-commit-action@v5
-        with:
-          commit_message: "chore: export ${{ env.SOLUTION_NAME }} from Dev"
-          branch: main
-
-      # 7. WhoAmI (Prod)
       - name: WhoAmI (Prod)
         uses: microsoft/powerplatform-actions/who-am-i@v1
         with:
@@ -71,8 +30,7 @@ jobs:
           app-id: ${{ secrets.PP_PROD_CLIENT_ID }}
           client-secret: ${{ secrets.PP_PROD_CLIENT_SECRET }}
 
-      # 8. Import Unmanaged solution into Prod
-      - name: Import Unmanaged solution to Prod
+      - name: Import Unmanaged solution into Prod
         uses: microsoft/powerplatform-actions/import-solution@v1
         with:
           environment-url: ${{ secrets.PP_PROD_URL }}
@@ -80,14 +38,10 @@ jobs:
           app-id: ${{ secrets.PP_PROD_CLIENT_ID }}
           client-secret: ${{ secrets.PP_PROD_CLIENT_SECRET }}
           solution-file: out/${{ env.SOLUTION_NAME }}_Unmanaged.zip
-          publish-changes: true
+          publish-changes: false
           overwrite-unmanaged-customizations: true
 
-      # 9. Publish customizations in Prod
-      - name: Publish customizations
-        uses: microsoft/powerplatform-actions/publish-customizations@v1
-        with:
-          environment-url: ${{ secrets.PP_PROD_URL }}
-          tenant-id: ${{ secrets.PP_PROD_TENANT_ID }}
-          app-id: ${{ secrets.PP_PROD_CLIENT_ID }}
-          client-secret: ${{ secrets.PP_PROD_CLIENT_SECRET }}
+      - name: Publish customizations in Prod
+        run: |
+          pac auth create --url ${{ secrets.PP_PROD_URL }} --client-id ${{ secrets.PP_PROD_CLIENT_ID }} --client-secret ${{ secrets.PP_PROD_CLIENT_SECRET }} --tenant-id ${{ secrets.PP_PROD_TENANT_ID }} --name ProdAuth
+          pac solution publish --environment ProdAuth --name ${{ env.SOLUTION_NAME }}
