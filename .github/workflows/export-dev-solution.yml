@@ -1,7 +1,5 @@
-name: Export Unmanaged from Dev
+name: Dev to Prod Unmanaged Deployment
 
-permissions:
-  contents: write
 on:
   workflow_dispatch:
   push:
@@ -10,20 +8,18 @@ on:
       - "solutions/**"
 
 jobs:
-  export:
+  dev-to-prod:
     runs-on: ubuntu-latest
     env:
       SOLUTION_NAME: emp_leave
     steps:
-      # 1. Checkout repo
       - name: Checkout repo
         uses: actions/checkout@v4
 
-      # 2. Install PAC CLI
       - name: Install PAC CLI
         uses: microsoft/powerplatform-actions/actions-install@v1
 
-      # 3. WhoAmI (Dev)
+      # Dev authentication
       - name: WhoAmI (Dev)
         uses: microsoft/powerplatform-actions/who-am-i@v1
         with:
@@ -32,8 +28,8 @@ jobs:
           app-id: ${{ secrets.PP_DEV_CLIENT_ID }}
           client-secret: ${{ secrets.PP_DEV_CLIENT_SECRET }}
 
-      # 4. Export Unmanaged Solution
-      - name: Export solution (Unmanaged) from Dev
+      # Export solution from Dev
+      - name: Export solution
         uses: microsoft/powerplatform-actions/export-solution@v1
         with:
           environment-url: ${{ secrets.PP_DEV_URL }}
@@ -45,9 +41,29 @@ jobs:
           overwrite: true
           solution-output-file: out/${{ env.SOLUTION_NAME }}_Unmanaged.zip
 
-      # 5. Upload exported solution as artifact
-      - name: Upload solution artifact
-        uses: actions/upload-artifact@v3
+      # Prod authentication
+      - name: WhoAmI (Prod)
+        uses: microsoft/powerplatform-actions/who-am-i@v1
         with:
-          name: solution-zip
-          path: out/${{ env.SOLUTION_NAME }}_Unmanaged.zip
+          environment-url: ${{ secrets.PP_PROD_URL }}
+          tenant-id: ${{ secrets.PP_PROD_TENANT_ID }}
+          app-id: ${{ secrets.PP_PROD_CLIENT_ID }}
+          client-secret: ${{ secrets.PP_PROD_CLIENT_SECRET }}
+
+      # Import solution to Prod
+      - name: Import solution
+        uses: microsoft/powerplatform-actions/import-solution@v1
+        with:
+          environment-url: ${{ secrets.PP_PROD_URL }}
+          tenant-id: ${{ secrets.PP_PROD_TENANT_ID }}
+          app-id: ${{ secrets.PP_PROD_CLIENT_ID }}
+          client-secret: ${{ secrets.PP_PROD_CLIENT_SECRET }}
+          solution-file: out/${{ env.SOLUTION_NAME }}_Unmanaged.zip
+          publish-changes: false
+          overwrite-unmanaged-customizations: true
+
+      # Publish customizations
+      - name: Publish customizations
+        run: |
+          pac auth create --url ${{ secrets.PP_PROD_URL }} --client-id ${{ secrets.PP_PROD_CLIENT_ID }} --client-secret ${{ secrets.PP_PROD_CLIENT_SECRET }} --tenant-id ${{ secrets.PP_PROD_TENANT_ID }} --name ProdAuth
+          pac solution publish --environment ProdAuth --name ${{ env.SOLUTION_NAME }}
