@@ -1,0 +1,49 @@
+name: Export Unmanaged Solution from Dev
+
+permissions:
+  contents: write
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ "main" ]
+    paths:
+      - "solutions/**"
+
+jobs:
+  export:
+    runs-on: ubuntu-latest
+    env:
+      SOLUTION_NAME: emp_leave
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Install PAC CLI
+        uses: microsoft/powerplatform-actions/actions-install@v1
+
+      - name: WhoAmI (Dev)
+        uses: microsoft/powerplatform-actions/who-am-i@v1
+        with:
+          environment-url: ${{ secrets.PP_DEV_URL }}
+          tenant-id: ${{ secrets.PP_DEV_TENANT_ID }}
+          app-id: ${{ secrets.PP_DEV_CLIENT_ID }}
+          client-secret: ${{ secrets.PP_DEV_CLIENT_SECRET }}
+
+      - name: Export solution (Unmanaged) from Dev
+        uses: microsoft/powerplatform-actions/export-solution@v1
+        with:
+          environment-url: ${{ secrets.PP_DEV_URL }}
+          tenant-id: ${{ secrets.PP_DEV_TENANT_ID }}
+          app-id: ${{ secrets.PP_DEV_CLIENT_ID }}
+          client-secret: ${{ secrets.PP_DEV_CLIENT_SECRET }}
+          solution-name: ${{ env.SOLUTION_NAME }}
+          managed: false
+          overwrite: true
+          solution-output-file: out/${{ env.SOLUTION_NAME }}_Unmanaged.zip
+
+      - name: Commit exported solution
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "chore: export ${{ env.SOLUTION_NAME }} from Dev"
+          branch: main
