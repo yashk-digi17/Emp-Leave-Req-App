@@ -16,12 +16,22 @@ jobs:
     env:
       SOLUTION_NAME: emp_leave
     steps:
+      # 1. Checkout repo
       - name: Checkout repo
         uses: actions/checkout@v4
 
+      # 2. Install PAC CLI
       - name: Install PAC CLI
         uses: microsoft/powerplatform-actions/actions-install@v1
 
+      # 3. Download exported solution artifact
+      - name: Download solution artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: solution-zip
+          path: ./out
+
+      # 4. WhoAmI (Prod)
       - name: WhoAmI (Prod)
         uses: microsoft/powerplatform-actions/who-am-i@v1
         with:
@@ -30,18 +40,20 @@ jobs:
           app-id: ${{ secrets.PP_PROD_CLIENT_ID }}
           client-secret: ${{ secrets.PP_PROD_CLIENT_SECRET }}
 
-      - name: Import Unmanaged solution into Prod
+      # 5. Import Unmanaged Solution into Prod
+      - name: Import solution to Prod
         uses: microsoft/powerplatform-actions/import-solution@v1
         with:
           environment-url: ${{ secrets.PP_PROD_URL }}
           tenant-id: ${{ secrets.PP_PROD_TENANT_ID }}
           app-id: ${{ secrets.PP_PROD_CLIENT_ID }}
           client-secret: ${{ secrets.PP_PROD_CLIENT_SECRET }}
-          solution-file: out/${{ env.SOLUTION_NAME }}_Unmanaged.zip
+          solution-file: ./out/${{ env.SOLUTION_NAME }}_Unmanaged.zip
           publish-changes: false
           overwrite-unmanaged-customizations: true
 
-      - name: Publish customizations in Prod
+      # 6. Publish customizations in Prod using PAC CLI
+      - name: Publish customizations
         run: |
           pac auth create --url ${{ secrets.PP_PROD_URL }} --client-id ${{ secrets.PP_PROD_CLIENT_ID }} --client-secret ${{ secrets.PP_PROD_CLIENT_SECRET }} --tenant-id ${{ secrets.PP_PROD_TENANT_ID }} --name ProdAuth
           pac solution publish --environment ProdAuth --name ${{ env.SOLUTION_NAME }}
