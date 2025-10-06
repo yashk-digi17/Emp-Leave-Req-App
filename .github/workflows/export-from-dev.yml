@@ -39,6 +39,7 @@ jobs:
           client-secret: ${{ secrets.PP_DEV_CLIENT_SECRET }}
           solution-name: ${{ env.SOLUTION_NAME }}
           managed: false
+          overwrite: true
           solution-output-file: out/${{ env.SOLUTION_NAME }}_Unmanaged.zip
 
       - name: Unpack solution to /solutions/${{ env.SOLUTION_NAME }}
