@@ -1,0 +1,124 @@
+[
+  {
+    "CdsFCBContext": "{\"FileType\":true,\"ImageExternalStorage\":true}",
+    "EntitySetName": "cr6c4_leaverequest1s",
+    "IsHidden": false,
+    "IsSampleData": false,
+    "IsWritable": true,
+    "LogicalName": "cr6c4_leaverequest1",
+    "MaxGetRowsCount": 500,
+    "Name": "Leave Request",
+    "NativeCDSDataSourceInfoNameMapping": {
+      "_ownerid_value": "Owner",
+      "cr6c4_employeeemail": "EmployeeEmail",
+      "cr6c4_employeename": "EmployeeName",
+      "cr6c4_leaveenddate": "EndDate",
+      "cr6c4_leavereason": "Reason",
+      "cr6c4_leaverequest1_AsyncOperations": "System Jobs",
+      "cr6c4_leaverequest1_BulkDeleteFailures": "Bulk Delete Failures",
+      "cr6c4_leaverequest1_DuplicateBaseRecord": "Duplicate Records (cr6c4_leaverequest1_DuplicateBaseRecord)",
+      "cr6c4_leaverequest1_DuplicateMatchingRecord": "Duplicate Records (cr6c4_leaverequest1_DuplicateMatchingRecord)",
+      "cr6c4_leaverequest1_MailboxTrackingFolders": "Mailbox Auto Tracking Folders",
+      "cr6c4_leaverequest1_PrincipalObjectAttributeAccesses": "Field Sharing",
+      "cr6c4_leaverequest1_ProcessSession": "Process Sessions",
+      "cr6c4_leaverequest1_SyncErrors": "Sync Errors",
+      "cr6c4_leaverequest1id": "Leave Request",
+      "cr6c4_leavestartdate": "StartDate",
+      "cr6c4_leavestatus": "Status1",
+      "cr6c4_manageremail": "ManagerEmail",
+      "createdby": "Created By",
+      "createdon": "Created On",
+      "createdonbehalfby": "Created By (Delegate)",
+      "importsequencenumber": "Import Sequence Number",
+      "modifiedby": "Modified By",
+      "modifiedon": "Modified On",
+      "modifiedonbehalfby": "Modified By (Delegate)",
+      "overriddencreatedon": "Record Created On",
+      "owningbusinessunit": "Owning Business Unit",
+      "owningteam": "Owning Team",
+      "owninguser": "Owning User",
+      "statecode": "Status",
+      "statuscode": "Status Reason",
+      "timezoneruleversionnumber": "Time Zone Rule Version Number",
+      "utcconversiontimezonecode": "UTC Conversion Time Zone Code",
+      "versionnumber": "Version Number"
+    },
+    "PreferredName": "Leave Request",
+    "Type": "NativeCDSDataSourceInfo"
+  },
+  {
+    "DisplayName": "Leave Request (Views)",
+    "Name": "_cr6c4_leaverequest1_views",
+    "RelatedEntityName": "Leave Request",
+    "TrimmedViewName": true,
+    "Type": "ViewInfo",
+    "ViewInfoNameMapping": {
+      "3e4b7259-f903-441a-9bab-f5a8f1602be4": "Leave Request Lookup View",
+      "7cc6655f-d6ec-4965-8a05-4ad938e2394c": "Inactive Leave Request",
+      "7e06a719-87f1-4f80-96f6-489a38dc9529": "Leave Request Advanced Find View",
+      "a96c73e6-93bf-4930-b320-efafbbbbb373": "Active Leave Request",
+      "d26cbeaa-2c24-449f-9bea-962603883168": "Leave Request Associated View"
+    }
+  },
+  {
+    "DisplayName": "Status1 (Leave Request)",
+    "Name": "cr6c4_leaverequest1_cr6c4_leavestatus",
+    "OptionSetInfoNameMapping": {
+      "176510001": "Pending",
+      "176510002": "Approved",
+      "176510003": "Rejected"
+    },
+    "OptionSetIsBooleanValued": false,
+    "OptionSetIsGlobal": false,
+    "OptionSetReference": {
+      "OptionSetReferenceItem0": {
+        "OptionSetReferenceColumnName": "cr6c4_leavestatus",
+        "OptionSetReferenceEntityName": "Leave Request"
+      }
+    },
+    "OptionSetTypeKey": "PicklistType",
+    "RelatedColumnInvariantName": "cr6c4_leavestatus",
+    "RelatedEntityName": "Leave Request",
+    "Type": "OptionSetInfo"
+  },
+  {
+    "DisplayName": "Status (Leave Request)",
+    "Name": "cr6c4_leaverequest1_statecode",
+    "OptionSetInfoNameMapping": {
+      "0": "Active",
+      "1": "Inactive"
+    },
+    "OptionSetIsBooleanValued": false,
+    "OptionSetIsGlobal": false,
+    "OptionSetReference": {
+      "OptionSetReferenceItem0": {
+        "OptionSetReferenceColumnName": "statecode",
+        "OptionSetReferenceEntityName": "Leave Request"
+      }
+    },
+    "OptionSetTypeKey": "StateType",
+    "RelatedColumnInvariantName": "statecode",
+    "RelatedEntityName": "Leave Request",
+    "Type": "OptionSetInfo"
+  },
+  {
+    "DisplayName": "Status Reason (Leave Request)",
+    "Name": "cr6c4_leaverequest1_statuscode",
+    "OptionSetInfoNameMapping": {
+      "1": "Active",
+      "2": "Inactive"
+    },
+    "OptionSetIsBooleanValued": false,
+    "OptionSetIsGlobal": false,
+    "OptionSetReference": {
+      "OptionSetReferenceItem0": {
+        "OptionSetReferenceColumnName": "statuscode",
+        "OptionSetReferenceEntityName": "Leave Request"
+      }
+    },
+    "OptionSetTypeKey": "StatusType",
+    "RelatedColumnInvariantName": "statuscode",
+    "RelatedEntityName": "Leave Request",
+    "Type": "OptionSetInfo"
+  }
+]

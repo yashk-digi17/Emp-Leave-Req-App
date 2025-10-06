@@ -1,0 +1,18 @@
+{
+  "QualifiedValues": [
+    {
+      "Kind": "default.cds_cr6c4_leaverequest1_forms",
+      "Namespace": "Leave Request (Forms)",
+      "Values": {
+        "Information": "fecb55fc-82fc-41b1-8cfa-e431ac750c3c"
+      }
+    },
+    {
+      "Kind": "default.cds_cr6c4_leaverequest_forms",
+      "Namespace": "Leave Request_1 (Forms)",
+      "Values": {
+        "Information": "c947a2bb-fe53-475f-a210-8e8394f55208"
+      }
+    }
+  ]
+}
