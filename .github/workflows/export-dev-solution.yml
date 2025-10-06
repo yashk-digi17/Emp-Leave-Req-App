@@ -1,4 +1,4 @@
-name: Export Unmanaged Solution from Dev
+name: Export Unmanaged from Dev
 
 permissions:
   contents: write
