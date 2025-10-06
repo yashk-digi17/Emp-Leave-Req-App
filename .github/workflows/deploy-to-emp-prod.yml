@@ -1,14 +1,18 @@
-name: Deploy Managed solution to Yash Env Prod
+name: Dev to Prod Unmanaged Deployment
+
+permissions:
+  contents: write
 
 on:
   workflow_dispatch:
   push:
     branches: [ "main" ]
     paths:
+      - ".github/workflows/**"
       - "solutions/**"
 
 jobs:
-  build-and-deploy:
+  deploy:
     runs-on: ubuntu-latest
     env:
       SOLUTION_NAME: emp_leave   # 👈 define solution name manually
@@ -17,30 +21,48 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      # 2. Cleanup old files
-      - name: Cleanup old solution ZIPs
-        run: |
-          rm -f out/${{ env.SOLUTION_NAME }}_Unmanaged.zip
-          rm -f out/${{ env.SOLUTION_NAME }}_Managed.zip
+      # 2. Install PAC CLI
+      - name: Install PAC CLI
+        uses: microsoft/powerplatform-actions/actions-install@v1
 
-      # 3. Pack Unmanaged solution (from repo)
-      - name: Pack solution (Unmanaged) from repo
-        uses: microsoft/powerplatform-actions/pack-solution@v1
+      # 3. WhoAmI (Dev)
+      - name: WhoAmI (Dev)
+        uses: microsoft/powerplatform-actions/who-am-i@v1
         with:
-          folder: solutions/${{ env.SOLUTION_NAME }}
+          environment-url: ${{ secrets.PP_DEV_URL }}
+          tenant-id: ${{ secrets.PP_DEV_TENANT_ID }}
+          app-id: ${{ secrets.PP_DEV_CLIENT_ID }}
+          client-secret: ${{ secrets.PP_DEV_CLIENT_SECRET }}
+
+      # 4. Export solution (Unmanaged) from Dev
+      - name: Export solution (Unmanaged) from Dev
+        uses: microsoft/powerplatform-actions/export-solution@v1
+        with:
+          environment-url: ${{ secrets.PP_DEV_URL }}
+          tenant-id: ${{ secrets.PP_DEV_TENANT_ID }}
+          app-id: ${{ secrets.PP_DEV_CLIENT_ID }}
+          client-secret: ${{ secrets.PP_DEV_CLIENT_SECRET }}
+          solution-name: ${{ env.SOLUTION_NAME }}
+          managed: false
+          overwrite: true
+          solution-output-file: out/${{ env.SOLUTION_NAME }}_Unmanaged.zip
+
+      # 5. Unpack solution into repo folder
+      - name: Unpack solution to /solutions/${{ env.SOLUTION_NAME }}
+        uses: microsoft/powerplatform-actions/unpack-solution@v1
+        with:
           solution-file: out/${{ env.SOLUTION_NAME }}_Unmanaged.zip
-          package-type: Unmanaged
+          solution-folder: solutions/${{ env.SOLUTION_NAME }}
           process-canvas-apps: true
 
-      # 4. Convert Unmanaged → Managed
-      - name: Convert solution to Managed
-        uses: microsoft/powerplatform-actions/convert-solution@v1
+      # 6. Commit unpacked files to Git
+      - name: Commit unpacked files
+        uses: stefanzweifel/git-auto-commit-action@v5
         with:
-          solution-file: out/${{ env.SOLUTION_NAME }}_Unmanaged.zip
-          solution-output-file: out/${{ env.SOLUTION_NAME }}_Managed.zip
-          package-type: Managed
+          commit_message: "chore: export ${{ env.SOLUTION_NAME }} from Dev"
+          branch: main
 
-      # 5. Verify authentication (WhoAmI) on Prod
+      # 7. WhoAmI (Prod)
       - name: WhoAmI (Prod)
         uses: microsoft/powerplatform-actions/who-am-i@v1
         with:
@@ -49,19 +71,19 @@ jobs:
           app-id: ${{ secrets.PP_CLIENT_ID }}
           client-secret: ${{ secrets.PP_CLIENT_SECRET }}
 
-      # 6. Import Managed solution into Prod
-      - name: Import Managed solution to Yash Env Prod
+      # 8. Import Unmanaged solution into Prod
+      - name: Import Unmanaged solution to Prod
         uses: microsoft/powerplatform-actions/import-solution@v1
         with:
           environment-url: ${{ secrets.PP_PROD_URL }}
           tenant-id: ${{ secrets.PP_TENANT_ID }}
           app-id: ${{ secrets.PP_CLIENT_ID }}
           client-secret: ${{ secrets.PP_CLIENT_SECRET }}
-          solution-file: out/${{ env.SOLUTION_NAME }}_Managed.zip
+          solution-file: out/${{ env.SOLUTION_NAME }}_Unmanaged.zip
           publish-changes: true
           overwrite-unmanaged-customizations: true
 
-      # 7. Publish customizations
+      # 9. Publish customizations in Prod
       - name: Publish customizations
         uses: microsoft/powerplatform-actions/publish-customizations@v1
         with:
