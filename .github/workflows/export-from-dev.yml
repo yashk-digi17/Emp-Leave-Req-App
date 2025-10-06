@@ -14,17 +14,14 @@ jobs:
   export:
     runs-on: ubuntu-latest
     env:
-      SOLUTION_NAME: ${{ secrets.PP_SOLUTION_NAME }}
+      SOLUTION_NAME: emp_leave   # 👈 define manually
     steps:
-      # 1. Checkout repo
       - name: Checkout
         uses: actions/checkout@v4
 
-      # 2. Install PAC CLI
       - name: Install PAC CLI
         uses: microsoft/powerplatform-actions/actions-install@v1
 
-      # 3. Verify authentication (WhoAmI) with Service Principal
       - name: WhoAmI (Dev)
         uses: microsoft/powerplatform-actions/who-am-i@v1
         with:
@@ -33,7 +30,6 @@ jobs:
           app-id: ${{ secrets.PP_DEV_CLIENT_ID }}
           client-secret: ${{ secrets.PP_DEV_CLIENT_SECRET }}
 
-      # 4. Export solution (Unmanaged) from Dev
       - name: Export solution (Unmanaged) from Dev
         uses: microsoft/powerplatform-actions/export-solution@v1
         with:
@@ -45,15 +41,13 @@ jobs:
           managed: false
           solution-output-file: out/${{ env.SOLUTION_NAME }}_Unmanaged.zip
 
-      # 5. Unpack solution into repo folder
       - name: Unpack solution to /solutions/${{ env.SOLUTION_NAME }}
         uses: microsoft/powerplatform-actions/unpack-solution@v1
         with:
-          solution-file: solutions/${{ env.SOLUTION_NAME }}_Unmanaged.zip
+          solution-file: out/${{ env.SOLUTION_NAME }}_Unmanaged.zip
           solution-folder: solutions/${{ env.SOLUTION_NAME }}
           process-canvas-apps: true
 
-      # 6. Commit unpacked files to Git
       - name: Commit unpacked files
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
