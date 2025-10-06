@@ -13,29 +13,36 @@ jobs:
     env:
       SOLUTION_NAME: ${{ secrets.PP_SOLUTION_NAME }}
     steps:
+      # 1. Checkout repo
       - name: Checkout
         uses: actions/checkout@v4
 
+      # 2. Install PAC CLI
       - name: Install PAC CLI
         uses: microsoft/powerplatform-actions/actions-install@v1
 
+      # 3. Verify authentication (WhoAmI) with Service Principal
       - name: WhoAmI (Dev)
         uses: microsoft/powerplatform-actions/who-am-i@v1
         with:
           environment-url: ${{ secrets.PP_DEV_URL }}
-          username: ${{ secrets.PP_USERNAME }}
-          password: ${{ secrets.PP_PASSWORD }}
+          tenant-id: ${{ secrets.PP_TENANT_ID }}
+          app-id: ${{ secrets.PP_CLIENT_ID }}
+          client-secret: ${{ secrets.PP_CLIENT_SECRET }}
 
+      # 4. Export solution (Unmanaged) from Dev
       - name: Export solution (Unmanaged) from Dev
         uses: microsoft/powerplatform-actions/export-solution@v1
         with:
           environment-url: ${{ secrets.PP_DEV_URL }}
-          user-name: ${{ secrets.PP_USERNAME }}
-          password-secret: ${{ secrets.PP_PASSWORD }}
+          tenant-id: ${{ secrets.PP_TENANT_ID }}
+          app-id: ${{ secrets.PP_CLIENT_ID }}
+          client-secret: ${{ secrets.PP_CLIENT_SECRET }}
           solution-name: ${{ env.SOLUTION_NAME }}
           managed: false
           output-file: out/${{ env.SOLUTION_NAME }}_Unmanaged.zip
 
+      # 5. Unpack solution into repo folder
       - name: Unpack solution to /solutions/${{ env.SOLUTION_NAME }}
         uses: microsoft/powerplatform-actions/unpack-solution@v1
         with:
@@ -43,6 +50,7 @@ jobs:
           folder: solutions/${{ env.SOLUTION_NAME }}
           process-canvas-apps: true
 
+      # 6. Commit unpacked files to Git
       - name: Commit unpacked files
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
