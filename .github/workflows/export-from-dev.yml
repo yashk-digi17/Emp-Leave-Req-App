@@ -1,5 +1,8 @@
 name: Export solution from Dev to Git
 
+permissions:
+  contents: write 
+
 on:
   workflow_dispatch:
   workflow_call:
