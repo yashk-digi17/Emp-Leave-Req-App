@@ -2,13 +2,13 @@ name: Deploy Unmanaged Solution to Prod
 
 permissions:
   contents: read
-
+  
 on:
-  workflow_dispatch:
   workflow_run:
     workflows: ["Export Unmanaged Solution from Dev"]
     types:
       - completed
+
 
 jobs:
   deploy:
