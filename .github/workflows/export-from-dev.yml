@@ -49,7 +49,7 @@ jobs:
       - name: Unpack solution to /solutions/${{ env.SOLUTION_NAME }}
         uses: microsoft/powerplatform-actions/unpack-solution@v1
         with:
-          solution-file: out/${{ env.SOLUTION_NAME }}_Unmanaged.zip
+          solution-file: solutions/${{ env.SOLUTION_NAME }}_Unmanaged.zip
           solution-folder: solutions/${{ env.SOLUTION_NAME }}
           process-canvas-apps: true
 
