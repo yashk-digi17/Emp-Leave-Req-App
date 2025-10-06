@@ -13,9 +13,11 @@ jobs:
     env:
       SOLUTION_NAME: ${{ secrets.PP_SOLUTION_NAME }}
     steps:
+      # 1. Checkout repo
       - name: Checkout
         uses: actions/checkout@v4
 
+      # 2. Pack Unmanaged solution (from repo)
       - name: Pack solution (Unmanaged) from repo
         uses: microsoft/powerplatform-actions/pack-solution@v1
         with:
@@ -24,6 +26,15 @@ jobs:
           package-type: Unmanaged
           process-canvas-apps: true
 
+      # 3. Convert Unmanaged → Managed
+      - name: Convert solution to Managed
+        uses: microsoft/powerplatform-actions/convert-solution@v1
+        with:
+          solution-file: out/${{ env.SOLUTION_NAME }}_Unmanaged.zip
+          solution-output-file: out/${{ env.SOLUTION_NAME }}_Managed.zip
+          package-type: Managed
+
+      # 4. Verify authentication (WhoAmI) on Prod
       - name: WhoAmI (Prod)
         uses: microsoft/powerplatform-actions/who-am-i@v1
         with:
@@ -32,6 +43,7 @@ jobs:
           app-id: ${{ secrets.PP_CLIENT_ID }}
           client-secret: ${{ secrets.PP_CLIENT_SECRET }}
 
+      # 5. Import Managed solution into Prod
       - name: Import Managed solution to Yash Env Prod
         uses: microsoft/powerplatform-actions/import-solution@v1
         with:
@@ -39,10 +51,11 @@ jobs:
           tenant-id: ${{ secrets.PP_TENANT_ID }}
           app-id: ${{ secrets.PP_CLIENT_ID }}
           client-secret: ${{ secrets.PP_CLIENT_SECRET }}
-          solution-file: out/${{ env.SOLUTION_NAME }}_Unmanaged.zip
+          solution-file: out/${{ env.SOLUTION_NAME }}_Managed.zip
           publish-changes: true
           overwrite-unmanaged-customizations: true
 
+      # 6. Publish customizations
       - name: Publish customizations
         uses: microsoft/powerplatform-actions/publish-customizations@v1
         with:
