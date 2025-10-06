@@ -21,7 +21,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      # 2. Install PAC CLI
+      # 2. Install Power Platform CLI
       - name: Install PAC CLI
         uses: microsoft/powerplatform-actions/actions-install@v1
 
@@ -34,7 +34,7 @@ jobs:
           app-id: ${{ secrets.PP_DEV_CLIENT_ID }}
           client-secret: ${{ secrets.PP_DEV_CLIENT_SECRET }}
 
-      # 4. Export solution (Unmanaged) from Dev
+      # 4. Export Unmanaged Solution from Dev
       - name: Export solution (Unmanaged) from Dev
         uses: microsoft/powerplatform-actions/export-solution@v1
         with:
@@ -47,7 +47,7 @@ jobs:
           overwrite: true
           solution-output-file: out/${{ env.SOLUTION_NAME }}_Unmanaged.zip
 
-      # 5. Unpack solution into repo folder
+      # 5. Unpack solution into repo folder (optional)
       - name: Unpack solution to /solutions/${{ env.SOLUTION_NAME }}
         uses: microsoft/powerplatform-actions/unpack-solution@v1
         with:
@@ -55,7 +55,7 @@ jobs:
           solution-folder: solutions/${{ env.SOLUTION_NAME }}
           process-canvas-apps: true
 
-      # 6. Commit unpacked files to Git
+      # 6. Commit unpacked files to Git (optional)
       - name: Commit unpacked files
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
@@ -67,18 +67,18 @@ jobs:
         uses: microsoft/powerplatform-actions/who-am-i@v1
         with:
           environment-url: ${{ secrets.PP_PROD_URL }}
-          tenant-id: ${{ secrets.PP_TENANT_ID }}
-          app-id: ${{ secrets.PP_CLIENT_ID }}
-          client-secret: ${{ secrets.PP_CLIENT_SECRET }}
+          tenant-id: ${{ secrets.PP_PROD_TENANT_ID }}
+          app-id: ${{ secrets.PP_PROD_CLIENT_ID }}
+          client-secret: ${{ secrets.PP_PROD_CLIENT_SECRET }}
 
       # 8. Import Unmanaged solution into Prod
       - name: Import Unmanaged solution to Prod
         uses: microsoft/powerplatform-actions/import-solution@v1
         with:
           environment-url: ${{ secrets.PP_PROD_URL }}
-          tenant-id: ${{ secrets.PP_TENANT_ID }}
-          app-id: ${{ secrets.PP_CLIENT_ID }}
-          client-secret: ${{ secrets.PP_CLIENT_SECRET }}
+          tenant-id: ${{ secrets.PP_PROD_TENANT_ID }}
+          app-id: ${{ secrets.PP_PROD_CLIENT_ID }}
+          client-secret: ${{ secrets.PP_PROD_CLIENT_SECRET }}
           solution-file: out/${{ env.SOLUTION_NAME }}_Unmanaged.zip
           publish-changes: true
           overwrite-unmanaged-customizations: true
@@ -88,6 +88,6 @@ jobs:
         uses: microsoft/powerplatform-actions/publish-customizations@v1
         with:
           environment-url: ${{ secrets.PP_PROD_URL }}
-          tenant-id: ${{ secrets.PP_TENANT_ID }}
-          app-id: ${{ secrets.PP_CLIENT_ID }}
-          client-secret: ${{ secrets.PP_CLIENT_SECRET }}
+          tenant-id: ${{ secrets.PP_PROD_TENANT_ID }}
+          app-id: ${{ secrets.PP_PROD_CLIENT_ID }}
+          client-secret: ${{ secrets.PP_PROD_CLIENT_SECRET }}
