@@ -47,7 +47,7 @@ jobs:
         uses: microsoft/powerplatform-actions/unpack-solution@v1
         with:
           solution-file: out/${{ env.SOLUTION_NAME }}_Unmanaged.zip
-          folder: solutions/${{ env.SOLUTION_NAME }}
+          solution-folder: solutions/${{ env.SOLUTION_NAME }}
           process-canvas-apps: true
 
       # 6. Commit unpacked files to Git
