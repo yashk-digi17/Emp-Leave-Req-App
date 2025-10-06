@@ -26,21 +26,21 @@ jobs:
         uses: microsoft/powerplatform-actions/who-am-i@v1
         with:
           environment-url: ${{ secrets.PP_DEV_URL }}
-          tenant-id: ${{ secrets.PP_TENANT_ID }}
-          app-id: ${{ secrets.PP_CLIENT_ID }}
-          client-secret: ${{ secrets.PP_CLIENT_SECRET }}
+          tenant-id: ${{ secrets.PP_DEV_TENANT_ID }}
+          app-id: ${{ secrets.PP_DEV_CLIENT_ID }}
+          client-secret: ${{ secrets.PP_DEV_CLIENT_SECRET }}
 
       # 4. Export solution (Unmanaged) from Dev
       - name: Export solution (Unmanaged) from Dev
         uses: microsoft/powerplatform-actions/export-solution@v1
         with:
           environment-url: ${{ secrets.PP_DEV_URL }}
-          tenant-id: ${{ secrets.PP_TENANT_ID }}
-          app-id: ${{ secrets.PP_CLIENT_ID }}
-          client-secret: ${{ secrets.PP_CLIENT_SECRET }}
+          tenant-id: ${{ secrets.PP_DEV_TENANT_ID }}
+          app-id: ${{ secrets.PP_DEV_CLIENT_ID }}
+          client-secret: ${{ secrets.PP_DEV_CLIENT_SECRET }}
           solution-name: ${{ env.SOLUTION_NAME }}
           managed: false
-          output-file: out/${{ env.SOLUTION_NAME }}_Unmanaged.zip
+          solution-output-file: out/${{ env.SOLUTION_NAME }}_Unmanaged.zip
 
       # 5. Unpack solution into repo folder
       - name: Unpack solution to /solutions/${{ env.SOLUTION_NAME }}
