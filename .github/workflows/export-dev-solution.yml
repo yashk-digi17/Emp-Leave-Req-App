@@ -14,18 +14,21 @@ jobs:
       SOLUTION_NAME: emp_leave
 
     steps:
+      # 1️⃣ Checkout repo
       - name: Checkout repo
         uses: actions/checkout@v4
 
-      - name: Install Power Platform CLI
+      # 2️⃣ Install Power Platform CLI
+      - name: Install PAC CLI
         uses: microsoft/powerplatform-actions/actions-install@v1
 
-      # Create a unique filename using timestamp
+      # 3️⃣ Create unique filename using timestamp
       - name: Set unique filename
         id: set_filename
-        run: echo "file_name=${{ env.SOLUTION_NAME }}_Unmanaged_$(date +'%Y%m%d_%H%M%S').zip" >> $GITHUB_ENV
+        run: |
+          echo "file_name=${{ env.SOLUTION_NAME }}_Unmanaged_$(date +'%Y%m%d_%H%M%S').zip" >> $GITHUB_ENV
 
-      # Export solution from Dev
+      # 4️⃣ Export solution from Dev tenant
       - name: Export solution from Dev
         uses: microsoft/powerplatform-actions/export-solution@v1
         with:
@@ -38,7 +41,7 @@ jobs:
           overwrite: true
           solution-output-file: solutions/${{ env.file_name }}
 
-      # Upload exported file as artifact
+      # 5️⃣ Upload exported solution as artifact
       - name: Upload exported solution
         uses: actions/upload-artifact@v4
         with:
@@ -52,28 +55,31 @@ jobs:
       SOLUTION_NAME: emp_leave
 
     steps:
+      # 1️⃣ Checkout repo
       - name: Checkout repo
         uses: actions/checkout@v4
 
-      - name: Install Power Platform CLI
+      # 2️⃣ Install PAC CLI
+      - name: Install PAC CLI
         uses: microsoft/powerplatform-actions/actions-install@v1
 
-      # Download exported solution artifact
+      # 3️⃣ Download exported solution artifact
       - name: Download exported solution
         uses: actions/download-artifact@v4
         with:
           name: exported-solution
           path: solutions/
-      
+
+      # 4️⃣ Get solution file name safely
       - name: Get solution file name
         id: getfile
         run: |
           FILE=$(ls solutions/*.zip | head -n1)
-          echo "SOLUTION_FILE=$FILE" >> $GITHUB_ENV
+          echo "SOLUTION_FILE<<EOF" >> $GITHUB_ENV
+          echo "$FILE" >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
 
-
-
-      # Authenticate to Prod Tenant
+      # 5️⃣ Authenticate to Prod tenant
       - name: WhoAmI (Prod)
         uses: microsoft/powerplatform-actions/who-am-i@v1
         with:
@@ -82,7 +88,7 @@ jobs:
           app-id: ${{ secrets.PP_CLIENT_ID }}
           client-secret: ${{ secrets.PP_CLIENT_SECRET }}
 
-      # Import solution to Prod
+      # 6️⃣ Import solution to Prod
       - name: Import solution to Prod
         uses: microsoft/powerplatform-actions/import-solution@v1
         with:
@@ -94,9 +100,15 @@ jobs:
           publish-changes: false
           overwrite-unmanaged-customizations: true
 
-      # Publish customizations
+      # 7️⃣ Publish customizations safely using PAC CLI path
       - name: Publish customizations
         run: |
-          ${{ env.POWERPLATFORMTOOLS_PACPATH }}/pac auth create --url ${{ secrets.PP_PROD_URL }} --client-id ${{ secrets.PP_CLIENT_ID }} --client-secret ${{ secrets.PP_CLIENT_SECRET }} --tenant-id ${{ secrets.PP_TENANT_ID }} --name ProdAuth
-          ${{ env.POWERPLATFORMTOOLS_PACPATH }}/pac solution publish --environment ProdAuth --name ${{ env.SOLUTION_NAME }}
-
+          ${{ env.POWERPLATFORMTOOLS_PACPATH }}/pac auth create \
+            --url ${{ secrets.PP_PROD_URL }} \
+            --client-id ${{ secrets.PP_CLIENT_ID }} \
+            --client-secret ${{ secrets.PP_CLIENT_SECRET }} \
+            --tenant-id ${{ secrets.PP_TENANT_ID }} \
+            --name ProdAuth
+          ${{ env.POWERPLATFORMTOOLS_PACPATH }}/pac solution publish \
+            --environment ProdAuth \
+            --name ${{ env.SOLUTION_NAME }}
