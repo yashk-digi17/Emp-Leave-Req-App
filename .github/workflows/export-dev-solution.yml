@@ -1,9 +1,9 @@
-name: Dev to Prod Unmanaged Deployment
+name: Dev to Prod (Cross-Tenant) Unmanaged Deployment
 
 on:
   workflow_dispatch:
   push:
-    branches: [ "main" ]
+    branches: ["main"]
     paths:
       - "solutions/**"
 
@@ -12,24 +12,18 @@ jobs:
     runs-on: ubuntu-latest
     env:
       SOLUTION_NAME: emp_leave
+
     steps:
+      # Checkout repo
       - name: Checkout repo
         uses: actions/checkout@v4
 
+      # Install Power Platform CLI
       - name: Install PAC CLI
         uses: microsoft/powerplatform-actions/actions-install@v1
 
-      # Dev authentication
-      - name: WhoAmI (Dev)
-        uses: microsoft/powerplatform-actions/who-am-i@v1
-        with:
-          environment-url: ${{ secrets.PP_DEV_URL }}
-          tenant-id: ${{ secrets.PP_DEV_TENANT_ID }}
-          app-id: ${{ secrets.PP_DEV_CLIENT_ID }}
-          client-secret: ${{ secrets.PP_DEV_CLIENT_SECRET }}
-
-      # Export solution from Dev
-      - name: Export solution
+      # Authenticate and export solution from Dev Tenant
+      - name: Export solution from Dev
         uses: microsoft/powerplatform-actions/export-solution@v1
         with:
           environment-url: ${{ secrets.PP_DEV_URL }}
@@ -41,7 +35,35 @@ jobs:
           overwrite: true
           solution-output-file: out/${{ env.SOLUTION_NAME }}_Unmanaged.zip
 
-      # Prod authentication
+      # Upload exported file as artifact (so next tenant can use it)
+      - name: Upload exported solution
+        uses: actions/upload-artifact@v4
+        with:
+          name: exported-solution
+          path: solutions/${{ env.SOLUTION_NAME }}_Unmanaged.zip
+
+  import-to-prod:
+    runs-on: ubuntu-latest
+    needs: dev-to-prod
+    env:
+      SOLUTION_NAME: emp_leave
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      # Install PAC CLI again for this job
+      - name: Install PAC CLI
+        uses: microsoft/powerplatform-actions/actions-install@v1
+
+      # Download exported solution from previous job
+      - name: Download exported solution
+        uses: actions/download-artifact@v4
+        with:
+          name: exported-solution
+          path: solutions/
+
+      # Authenticate to Prod Tenant
       - name: WhoAmI (Prod)
         uses: microsoft/powerplatform-actions/who-am-i@v1
         with:
@@ -50,15 +72,15 @@ jobs:
           app-id: ${{ secrets.PP_PROD_CLIENT_ID }}
           client-secret: ${{ secrets.PP_PROD_CLIENT_SECRET }}
 
-      # Import solution to Prod
-      - name: Import solution
+      # Import solution to Prod (different tenant)
+      - name: Import solution to Prod
         uses: microsoft/powerplatform-actions/import-solution@v1
         with:
           environment-url: ${{ secrets.PP_PROD_URL }}
           tenant-id: ${{ secrets.PP_PROD_TENANT_ID }}
           app-id: ${{ secrets.PP_PROD_CLIENT_ID }}
           client-secret: ${{ secrets.PP_PROD_CLIENT_SECRET }}
-          solution-file: out/${{ env.SOLUTION_NAME }}_Unmanaged.zip
+          solution-file: solutions/${{ env.SOLUTION_NAME }}_Unmanaged.zip
           publish-changes: false
           overwrite-unmanaged-customizations: true
 
