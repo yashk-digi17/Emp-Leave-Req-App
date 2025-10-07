@@ -64,11 +64,12 @@ jobs:
         with:
           name: exported-solution
           path: solutions/
-
-      # Get filename dynamically from downloaded folder
+      
       - name: Get solution file name
         id: getfile
-        run: echo "SOLUTION_FILE=$(ls solutions/*.zip)" >> $GITHUB_ENV
+        run: |
+         echo "SOLUTION_FILE=solutions/$(ls solutions | grep .zip)" >> $GITHUB_ENV
+
 
       # Authenticate to Prod Tenant
       - name: WhoAmI (Prod)
