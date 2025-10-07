@@ -97,5 +97,6 @@ jobs:
       # Publish customizations
       - name: Publish customizations
         run: |
-          pac auth create --url ${{ secrets.PP_PROD_URL }} --client-id ${{ secrets.PP_CLIENT_ID }} --client-secret ${{ secrets.PP_CLIENT_SECRET }} --tenant-id ${{ secrets.PP_TENANT_ID }} --name ProdAuth
-          pac solution publish --environment ProdAuth --name ${{ env.SOLUTION_NAME }}
+          ${{ env.POWERPLATFORMTOOLS_PACPATH }}/pac auth create --url ${{ secrets.PP_PROD_URL }} --client-id ${{ secrets.PP_CLIENT_ID }} --client-secret ${{ secrets.PP_CLIENT_SECRET }} --tenant-id ${{ secrets.PP_TENANT_ID }} --name ProdAuth
+          ${{ env.POWERPLATFORMTOOLS_PACPATH }}/pac solution publish --environment ProdAuth --name ${{ env.SOLUTION_NAME }}
+
