@@ -103,12 +103,13 @@ jobs:
       # 7️⃣ Publish customizations safely using PAC CLI path
       - name: Publish customizations
         run: |
-          ${{ env.POWERPLATFORMTOOLS_PACPATH }}/pac auth create \
-            --url ${{ secrets.PP_PROD_URL }} \
-            --client-id ${{ secrets.PP_CLIENT_ID }} \
-            --client-secret ${{ secrets.PP_CLIENT_SECRET }} \
-            --tenant-id ${{ secrets.PP_TENANT_ID }} \
-            --name ProdAuth
-          ${{ env.POWERPLATFORMTOOLS_PACPATH }}/pac solution publish \
-            --environment ProdAuth \
-            --name ${{ env.SOLUTION_NAME }}
+         ${{ env.POWERPLATFORMTOOLS_PACPATH }} auth create \
+          --url ${{ secrets.PP_PROD_URL }} \
+          --client-id ${{ secrets.PP_PROD_CLIENT_ID }} \
+          --client-secret ${{ secrets.PP_PROD_CLIENT_SECRET }} \
+          --tenant-id ${{ secrets.PP_PROD_TENANT_ID }} \
+          --name ProdAuth
+
+         ${{ env.POWERPLATFORMTOOLS_PACPATH }} solution publish \
+          --environment ProdAuth \
+          --name ${{ env.SOLUTION_NAME }}
