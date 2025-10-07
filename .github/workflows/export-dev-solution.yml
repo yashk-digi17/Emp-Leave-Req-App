@@ -68,18 +68,18 @@ jobs:
         uses: microsoft/powerplatform-actions/who-am-i@v1
         with:
           environment-url: ${{ secrets.PP_PROD_URL }}
-          tenant-id: ${{ secrets.PP_PROD_TENANT_ID }}
-          app-id: ${{ secrets.PP_PROD_CLIENT_ID }}
-          client-secret: ${{ secrets.PP_PROD_CLIENT_SECRET }}
+          tenant-id: ${{ secrets.PP_TENANT_ID }}
+          app-id: ${{ secrets.PP_CLIENT_ID }}
+          client-secret: ${{ secrets.PP_CLIENT_SECRET }}
 
       # Import solution to Prod (different tenant)
       - name: Import solution to Prod
         uses: microsoft/powerplatform-actions/import-solution@v1
         with:
           environment-url: ${{ secrets.PP_PROD_URL }}
-          tenant-id: ${{ secrets.PP_PROD_TENANT_ID }}
-          app-id: ${{ secrets.PP_PROD_CLIENT_ID }}
-          client-secret: ${{ secrets.PP_PROD_CLIENT_SECRET }}
+          tenant-id: ${{ secrets.PP_TENANT_ID }}
+          app-id: ${{ secrets.PP_CLIENT_ID }}
+          client-secret: ${{ secrets.PP_CLIENT_SECRET }}
           solution-file: solutions/${{ env.SOLUTION_NAME }}_Unmanaged.zip
           publish-changes: false
           overwrite-unmanaged-customizations: true
@@ -87,5 +87,5 @@ jobs:
       # Publish customizations
       - name: Publish customizations
         run: |
-          pac auth create --url ${{ secrets.PP_PROD_URL }} --client-id ${{ secrets.PP_PROD_CLIENT_ID }} --client-secret ${{ secrets.PP_PROD_CLIENT_SECRET }} --tenant-id ${{ secrets.PP_PROD_TENANT_ID }} --name ProdAuth
+          pac auth create --url ${{ secrets.PP_PROD_URL }} --client-id ${{ secrets.PP_CLIENT_ID }} --client-secret ${{ secrets.PP_CLIENT_SECRET }} --tenant-id ${{ secrets.PP_TENANT_ID }} --name ProdAuth
           pac solution publish --environment ProdAuth --name ${{ env.SOLUTION_NAME }}
