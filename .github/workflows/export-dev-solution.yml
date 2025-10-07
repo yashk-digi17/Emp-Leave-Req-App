@@ -68,7 +68,9 @@ jobs:
       - name: Get solution file name
         id: getfile
         run: |
-         echo "SOLUTION_FILE=solutions/$(ls solutions | grep .zip)" >> $GITHUB_ENV
+          FILE=$(ls solutions/*.zip | head -n1)
+          echo "SOLUTION_FILE=$FILE" >> $GITHUB_ENV
+
 
 
       # Authenticate to Prod Tenant
